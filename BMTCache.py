@@ -127,16 +127,16 @@ class BMTCache:
         日期：2022
     '''
     # 由地址计算组索引、标记位、字偏移
-    def addr_to_S_tag_offset(self, counter_addr):
+    def addr_to_S_tag_offset(self, BMT_addr):
         # 先根据sbits的组索引找到对应的组，在对应的组的E行里面找到匹配的标记位，如果标记匹配就命中，否则就不命中
-        counter_addr = Utils.num_to_binary(counter_addr, self.m)  # 将地址转换为二进制形态
+        BMT_addr = Utils.num_to_binary(BMT_addr, self.m)  # 将地址转换为二进制形态
         # 从地址中找出组索引
-        s_index = Utils.trans_str_int(counter_addr[-6 - self.s:-6])
+        s_index = Utils.trans_str_int(BMT_addr[-6 - self.s:-6])
         cache_set = self.sets[s_index]
         # 标记位
-        tag = counter_addr[:-6 - self.s]
+        tag = BMT_addr[:-6 - self.s]
         # 找出字偏移
-        b_offset = Utils.trans_str_int(counter_addr[-6:])
+        b_offset = Utils.trans_str_int(BMT_addr[-6:])
         return s_index, tag, b_offset
 
     '''    

@@ -61,7 +61,7 @@ class Utils:
     def calcuAddrBits(cls, memory_size):
         if memory_size <= 1:
             return 0
-        return int(math.log2(memory_size))
+        return int(math.ceil(math.log2(memory_size)))
     '''    
         功能：
         参数：
@@ -150,9 +150,12 @@ class Utils:
     '''
     #计算第k层childNode的父节点的地址，也就是第k-1层相应的父节点的地址。（注意此处子节点和父节点的地址都是BMT区域中的地址。另外BMT的高度是从根节点为第一层，叶子节点为最后一层这样的高度计算的。）
     @classmethod
-    def caculate_partentNode_addr(cls, childNode_addr, k):
-        #parentNode_addr = childNode_addr//(64*8) * 64 + (8**(k-1))*64 + (childNode_addr%(64*8) // 64) * 8
-        parentNode_addr = childNode_addr // (64 * 8) * 64 + (childNode_addr % (64 * 8) // 64) * 8
+    def caculate_partentNode_addr(cls, childNode_addr, k, counter_flag):
+        if counter_flag:
+            parentNode_addr = (childNode_addr//(64*8))*64 + (childNode_addr%(64*8))//64 * 8
+        else:
+            parentNode_addr = childNode_addr//(64*8) * 64 + (8**(k-1))*64 + (childNode_addr%(64*8) // 64) * 8
+        #parentNode_addr = childNode_addr // (64 * 8) * 64 + (childNode_addr % (64 * 8) // 64) * 8
         #测试保留
         #print(parentNode_addr)
         return parentNode_addr

@@ -6,9 +6,8 @@ from DataL2Cache import DataL2Cache
 from Memory import Memory
 from BMTCache import BMTCache
 from utils import Utils
-import logging
 import sys
-import logUtils
+import datetime
 import logging
 
 
@@ -41,9 +40,13 @@ class MemoryController:
         self.BMTCache = BMTCache(GlobalConfig.BMT_cache_B, GlobalConfig.BMT_cache_E, GlobalConfig.BMT_cache_S, self.memory.BMT_memory_overhead)
         self.statistic()
         logging.info("缓存初始化完成...")
+        starttime = datetime.datetime.now()
         logging.info("开始初始化加密...")
         self.init_encryption()
+        endtime = datetime.datetime.now()
         logging.info("初始化加密完成...")
+        logging.debug("初始化加密耗时：{}（实际时间）".format((endtime - starttime)))
+
 
 
     """
@@ -227,12 +230,17 @@ class MemoryController:
             print("验证子节点,子节点地址：{}， 子节点所在层的高度：{}".format(node_addr, height), node.to_str())
         elif type(node) == list:
             print("验证子节点,子节点地址：{}， 子节点所在层的高度：{}".format(node_addr, height), "".join(node))
-        parent_node_addr = Utils.caculate_partentNode_addr(node_addr, height)
+        if height == self.memory.BMT_height:
+            counter_flag = True
+        else:
+            counter_flag = False
+        parent_node_addr = Utils.caculate_partentNode_addr(node_addr, height, counter_flag)
         print(parent_node_addr)
         hit, parent_node = self.read_BMT_node(parent_node_addr, height-1)
         print(parent_node)
+        print("开始取父节点,父节点地址：{}， 父节点所在层的高度：{}".format(parent_node_addr, height - 1), "".join(parent_node))
         if hit:
-            print("开始取父节点,父节点地址：{}， 父节点所在层的高度：{}， 父节点缓存命中".format(parent_node_addr, height - 1), "".join(parent_node))
+            print("父节点缓存命中")
             res = self.compare_BMTnode(node, node_addr, parent_node)
             #测试保留
             # if not res:
@@ -240,7 +248,7 @@ class MemoryController:
             #     sys.exit()
             return res
         else:
-            print("开始取父节点,父节点地址：{}， 父节点所在层的高度：{}， 父节点缓存未命中， 开始迭代验证父节点，开始下一轮迭代".format(parent_node_addr, height - 1), "".join(parent_node))
+            print("父节点缓存未命中， 开始迭代验证父节点，开始下一轮迭代")
             res = self.counter_verify(parent_node, parent_node_addr, height-1)
             if res:
                 res = self.compare_BMTnode(node, node_addr, parent_node)
